@@ -4,6 +4,7 @@ import {HeroesActions} from './heroes.actions';
 import {HeroService} from '../../services/hero.service';
 import {map, switchMap} from 'rxjs/operators';
 import {Hero} from '../../models/hero';
+import {Update} from '@ngrx/entity';
 
 @Injectable()
 export class HeroesEffects {
@@ -24,11 +25,20 @@ export class HeroesEffects {
     )
   );
 
+  putHero$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(HeroesActions.putHero),
+      switchMap(({hero}) => this.heroService.updateHero(hero).pipe(map(_ => hero))),
+      map((hero: Hero) => ({id: hero.id, changes: {name: hero.name}} as Update<Hero>)),
+      map((hero: Update<Hero>) => HeroesActions.updateHero({hero}))
+    )
+  );
+
   deleteHero$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(HeroesActions.removeHero),
-      switchMap(({id}) => this.heroService.deleteHero(id)),
-      map((hero: Hero) => HeroesActions.removeHero({id: hero.id}))
+      ofType(HeroesActions.deleteHero),
+      switchMap(({id}) => this.heroService.deleteHero(id).pipe(map(_ => id))),
+      map((id: number) => HeroesActions.removeHero({id}))
     )
   );
 

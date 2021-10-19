@@ -28,6 +28,10 @@ export const heroesReducers = createReducer(
     ...state,
     heroes: {...heroAdapter.setOne(hero, state.heroes)}
   })),
+  on(HeroesActions.updateHero, (state, {hero}) => ({
+    ...state,
+    heroes: {...heroAdapter.updateOne(hero, state.heroes)}
+  })),
   on(HeroesActions.removeHero, (state, {id}) => ({
     ...state,
     heroes: {...heroAdapter.removeOne(id, state.heroes)}
