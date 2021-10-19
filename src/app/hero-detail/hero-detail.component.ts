@@ -1,32 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
 
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import {Hero} from '../models/hero';
+import {HeroesState} from '../store/heroes/heroes.reducer';
+import {Store} from '@ngrx/store';
+import {HeroesSelectors} from '../store/heroes/heroes.selectors';
+import {filter, map} from 'rxjs/operators';
+import {HeroesActions} from '../store/heroes/heroes.actions';
 
 @Component({
   selector: 'app-hero-detail',
   templateUrl: './hero-detail.component.html',
-  styleUrls: [ './hero-detail.component.css' ]
+  styleUrls: ['./hero-detail.component.css']
 })
 export class HeroDetailComponent implements OnInit {
   hero: Hero | undefined;
 
   constructor(
     private route: ActivatedRoute,
-    private heroService: HeroService,
+    private heroesState: Store<HeroesState>,
     private location: Location
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.getHero();
   }
 
   getHero(): void {
-    const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10);
-    this.heroService.getHero(id)
-      .subscribe(hero => this.hero = hero);
+    this.heroesState.select(HeroesSelectors.heroByRouteParamSelector)
+      .pipe(
+        filter((hero: Hero | null | undefined) => !!hero),
+        map((hero: Hero | null | undefined) => hero as Hero)
+      ).subscribe((hero: Hero) => this.hero = {...hero});
   }
 
   goBack(): void {
@@ -35,15 +42,8 @@ export class HeroDetailComponent implements OnInit {
 
   save(): void {
     if (this.hero) {
-      this.heroService.updateHero(this.hero)
-        .subscribe(() => this.goBack());
+      this.heroesState.dispatch(HeroesActions.putHero({hero: this.hero}));
+      this.goBack();
     }
   }
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/

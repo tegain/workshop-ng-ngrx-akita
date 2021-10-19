@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import {Hero} from '../models/hero';
+import {HeroesState} from '../store/heroes/heroes.reducer';
+import {Store} from '@ngrx/store';
+import {HeroesActions} from '../store/heroes/heroes.actions';
+import {Observable} from 'rxjs';
+import {HeroesSelectors} from '../store/heroes/heroes.selectors';
 
 @Component({
   selector: 'app-heroes',
@@ -9,38 +13,20 @@ import { HeroService } from '../hero.service';
   styleUrls: ['./heroes.component.css']
 })
 export class HeroesComponent implements OnInit {
-  heroes: Hero[] = [];
+  heroes$: Observable<Hero[]> | undefined;
 
-  constructor(private heroService: HeroService) { }
-
-  ngOnInit() {
-    this.getHeroes();
+  constructor(private heroesState: Store<HeroesState>) {
   }
 
-  getHeroes(): void {
-    this.heroService.getHeroes()
-    .subscribe(heroes => this.heroes = heroes);
+  ngOnInit() {
+    this.heroes$ = this.heroesState.select(HeroesSelectors.heroes);
   }
 
   add(name: string): void {
-    name = name.trim();
-    if (!name) { return; }
-    this.heroService.addHero({ name } as Hero)
-      .subscribe(hero => {
-        this.heroes.push(hero);
-      });
+    this.heroesState.dispatch(HeroesActions.addHero({heroName: name}));
   }
 
   delete(hero: Hero): void {
-    this.heroes = this.heroes.filter(h => h !== hero);
-    this.heroService.deleteHero(hero.id).subscribe();
+    this.heroesState.dispatch(HeroesActions.deleteHero({id: hero.id}));
   }
-
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/

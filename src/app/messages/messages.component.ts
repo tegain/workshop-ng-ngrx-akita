@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MessageService } from '../message.service';
+import {Observable} from 'rxjs';
+import {SharedActions, SharedSelectors, SharedState} from '../store/shared';
+import {Store} from '@ngrx/store';
+import {Message} from '../models/message';
 
 @Component({
   selector: 'app-messages',
@@ -7,17 +10,15 @@ import { MessageService } from '../message.service';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit {
+  messages$: Observable<Message[]> | undefined;
 
-  constructor(public messageService: MessageService) {}
+  constructor(public sharedStore: Store<SharedState>) {}
 
   ngOnInit() {
+    this.messages$ = this.sharedStore.select(SharedSelectors.messages);
   }
 
+  clear() {
+    this.sharedStore.dispatch(SharedActions.clearMessages());
+  }
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/

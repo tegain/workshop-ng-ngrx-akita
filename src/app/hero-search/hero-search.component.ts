@@ -1,24 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { Observable, Subject } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 
-import {
-   debounceTime, distinctUntilChanged, switchMap
- } from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import {Hero} from '../models/hero';
+import {Store} from '@ngrx/store';
+import {HeroesState} from '../store/heroes/heroes.reducer';
+import {HeroesActions} from '../store/heroes/heroes.actions';
+import {HeroesSelectors} from '../store/heroes/heroes.selectors';
 
 @Component({
   selector: 'app-hero-search',
   templateUrl: './hero-search.component.html',
-  styleUrls: [ './hero-search.component.css' ]
+  styleUrls: ['./hero-search.component.css']
 })
 export class HeroSearchComponent implements OnInit {
   heroes$!: Observable<Hero[]>;
   private searchTerms = new Subject<string>();
 
-  constructor(private heroService: HeroService) {}
+  constructor(private heroesState: Store<HeroesState>) {
+  }
 
   // Push a search term into the observable stream.
   search(term: string): void {
@@ -26,22 +28,15 @@ export class HeroSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.heroes$ = this.searchTerms.pipe(
+    this.heroes$ = this.heroesState.select(HeroesSelectors.heroesFiltered);
+    this.searchTerms.pipe(
       // wait 300ms after each keystroke before considering the term
       debounceTime(300),
 
       // ignore new term if same as previous term
-      distinctUntilChanged(),
-
-      // switch to new search observable each time the term changes
-      switchMap((term: string) => this.heroService.searchHeroes(term)),
+      distinctUntilChanged()
+    ).subscribe(
+      (term: string) => this.heroesState.dispatch(HeroesActions.searchHeroes({query: term}))
     );
   }
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/

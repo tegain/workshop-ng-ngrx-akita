@@ -1,25 +1,27 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 
-import { Hero } from './hero';
-import { MessageService } from './message.service';
+import {Hero} from '../models/hero';
+import {SharedActions, SharedState} from '../store/shared';
+import {Store} from '@ngrx/store';
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class HeroService {
 
   private heroesUrl = 'api/heroes';  // URL to web api
 
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    headers: new HttpHeaders({'Content-Type': 'application/json'})
   };
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService) { }
+    private messageState: Store<SharedState>) {
+  }
 
   /** GET heroes from the server */
   getHeroes(): Observable<Hero[]> {
@@ -54,15 +56,15 @@ export class HeroService {
   }
 
   /* GET heroes whose name contains search term */
-  searchHeroes(term: string): Observable<Hero[]> {
-    if (!term.trim()) {
+  searchHeroes(term: string | null): Observable<Hero[]> {
+    if (!term || !term.trim()) {
       // if not search term, return empty hero array.
       return of([]);
     }
     return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
       tap(x => x.length ?
-         this.log(`found heroes matching "${term}"`) :
-         this.log(`no heroes matching "${term}"`)),
+        this.log(`found heroes matching "${term}"`) :
+        this.log(`no heroes matching "${term}"`)),
       catchError(this.handleError<Hero[]>('searchHeroes', []))
     );
   }
@@ -117,13 +119,6 @@ export class HeroService {
 
   /** Log a HeroService message with the MessageService */
   private log(message: string) {
-    this.messageService.add(`HeroService: ${message}`);
+    this.messageState.dispatch(SharedActions.setNewMessage({message: {data: `HeroService: ${message}`}}));
   }
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/
