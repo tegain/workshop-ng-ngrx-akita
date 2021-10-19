@@ -7,7 +7,7 @@ const getHeroes = createAction('[Heroes] get heroes list');
 const addHero = createAction('[Heroes] add Hero to list', props<{ heroName: string }>());
 const putHero = createAction('[Heroes] put Hero', props<{ hero: Hero}>());
 const deleteHero = createAction('[Heroes] delete Hero to list', props<{ id: number }>());
-const searchHeroes = createAction('[Heroes] search heroes', props<{query: string}>());
+const searchHeroes = createAction('[Heroes] search heroes', props<{query: string | null}>());
 
 // Update Store
 const initHeroesList = createAction('[Heroes] initialisation of heroes list', props<{ heroes: Hero[] }>());

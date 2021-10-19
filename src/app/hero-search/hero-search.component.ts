@@ -28,6 +28,7 @@ export class HeroSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.heroesState.dispatch(HeroesActions.searchHeroes({query: null}));
     this.heroes$ = this.heroesState.select(HeroesSelectors.heroesFiltered);
     this.searchTerms.pipe(
       // wait 300ms after each keystroke before considering the term
