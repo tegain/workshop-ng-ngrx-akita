@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { InMemoryDataService } from './in-memory-data.service';
+import { InMemoryDataService } from './services/in-memory-data.service';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -14,6 +14,7 @@ import { HeroDetailComponent } from './hero-detail/hero-detail.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { HeroSearchComponent } from './hero-search/hero-search.component';
 import { MessagesComponent } from './messages/messages.component';
+import { StoreModule } from './store/store.module';
 
 @NgModule({
   imports: [
@@ -27,7 +28,10 @@ import { MessagesComponent } from './messages/messages.component';
     // Remove it when a real server is ready to receive requests.
     HttpClientInMemoryWebApiModule.forRoot(
       InMemoryDataService, { dataEncapsulation: false }
-    )
+    ),
+
+    // Store
+    StoreModule,
   ],
   declarations: [
     AppComponent,

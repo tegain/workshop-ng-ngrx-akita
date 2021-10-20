@@ -4,12 +4,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { Hero } from './hero';
-import { MessageService } from './message.service';
+import { Hero } from '../../hero';
+import { MessageService } from '../message/message.service';
 
 
 @Injectable({ providedIn: 'root' })
-export class HeroService {
+export class HeroRepository {
 
   private heroesUrl = 'api/heroes';  // URL to web api
 
@@ -55,10 +55,6 @@ export class HeroService {
 
   /* GET heroes whose name contains search term */
   searchHeroes(term: string): Observable<Hero[]> {
-    if (!term.trim()) {
-      // if not search term, return empty hero array.
-      return of([]);
-    }
     return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
       tap(x => x.length ?
          this.log(`found heroes matching "${term}"`) :

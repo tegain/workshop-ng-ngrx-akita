@@ -1,15 +1,21 @@
 import { Injectable } from '@angular/core';
+import { action } from '@datorama/akita';
+import { MessageStore } from '../../store/message/message.store';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
-  messages: string[] = [];
 
-  add(message: string) {
-    this.messages.push(message);
+  constructor (private readonly store: MessageStore) {
   }
 
+  @action('Add message')
+  add(message: string) {
+    this.store.addMessage(message);
+  }
+
+  @action('Clear messages')
   clear() {
-    this.messages = [];
+    this.store.clear();
   }
 }
 

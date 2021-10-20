@@ -1,24 +1,34 @@
 import { Component, OnInit } from '@angular/core';
+import { take } from 'ramda';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import { HeroService } from '../services/hero/hero.service';
+import { HeroQuery } from '../store/hero/hero.query';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: [ './dashboard.component.css' ]
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  heroes: Hero[] = [];
+  heroes$: Observable<Hero[]> | undefined;
 
-  constructor(private heroService: HeroService) { }
+  constructor (
+    private readonly heroService: HeroService,
+    private readonly heroesQuery: HeroQuery
+  ) {
+  }
 
-  ngOnInit() {
+  ngOnInit () {
+    this.heroes$ = this.heroesQuery.heroes$.pipe(
+      map<Hero[], Hero[]>(take(5))
+    )
     this.getHeroes();
   }
 
-  getHeroes(): void {
+  getHeroes (): void {
     this.heroService.getHeroes()
-      .subscribe(heroes => this.heroes = heroes.slice(1, 5));
   }
 }
 

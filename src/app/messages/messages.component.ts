@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MessageService } from '../message.service';
+import { Observable } from 'rxjs';
+import { MessageService } from '../services/message/message.service';
+import { MessageQuery } from '../store/message/message.query';
 
 @Component({
   selector: 'app-messages',
@@ -7,10 +9,15 @@ import { MessageService } from '../message.service';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit {
+  messages$: Observable<string[]> | undefined;
 
-  constructor(public messageService: MessageService) {}
+  constructor(
+    public readonly messagesService: MessageService,
+    public readonly messagesQuery: MessageQuery,
+  ) {}
 
   ngOnInit() {
+    this.messages$ = this.messagesQuery.messages$;
   }
 
 }

@@ -3,7 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
 import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import { HeroService } from '../services/hero/hero.service';
+import { HeroQuery } from '../store/hero/hero.query';
 
 @Component({
   selector: 'app-hero-detail',
@@ -11,22 +12,25 @@ import { HeroService } from '../hero.service';
   styleUrls: [ './hero-detail.component.css' ]
 })
 export class HeroDetailComponent implements OnInit {
-  hero: Hero | undefined;
+  hero: Hero | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private heroService: HeroService,
+    private heroesQuery: HeroQuery,
     private location: Location
   ) {}
 
   ngOnInit(): void {
+    this.heroesQuery.activeHero$.subscribe((hero) => {
+      this.hero = hero;
+    });
     this.getHero();
   }
 
   getHero(): void {
     const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10);
     this.heroService.getHero(id)
-      .subscribe(hero => this.hero = hero);
   }
 
   goBack(): void {
@@ -35,8 +39,8 @@ export class HeroDetailComponent implements OnInit {
 
   save(): void {
     if (this.hero) {
-      this.heroService.updateHero(this.hero)
-        .subscribe(() => this.goBack());
+      this.heroService.updateHero(this.hero);
+      this.goBack();
     }
   }
 }
